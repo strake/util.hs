@@ -4,6 +4,7 @@ import Control.Applicative
 import Control.Category
 import Control.Monad
 import Data.Bool
+import Data.Foldable
 import Data.Function (flip)
 import Data.Functor.Classes
 import Data.Maybe
@@ -11,7 +12,7 @@ import Data.Semigroup
 import Data.Monoid
 import Numeric.Natural
 
-import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Foldable, Traversable (..))
+import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..))
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -90,3 +91,8 @@ instance (Applicative p, Semigroup a) => Semigroup (Ap p a) where (<>) = liftA2 
 instance (Applicative p, Semigroup a, Monoid a) => Monoid (Ap p a) where
     mempty = pure mempty
     mappend = (<>)
+
+(!!?) :: Foldable f => f a -> Natural -> Maybe a
+(!!?) = go . toList where go [] _ = Nothing
+                          go (x:_) 0 = Just x
+                          go (_:xs) n = go xs (pred n)
