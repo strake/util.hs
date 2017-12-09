@@ -9,7 +9,7 @@ import Data.Function (flip)
 import Data.Functor.Classes
 import Data.Maybe
 import Data.Semigroup
-import Data.Monoid
+import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
 import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..))
