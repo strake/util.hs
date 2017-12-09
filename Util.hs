@@ -5,7 +5,13 @@ import Control.Category
 import Control.Monad
 import Data.Bool
 import Data.Function (flip)
+import Data.Functor.Classes
 import Data.Maybe
+import Data.Semigroup
+import Data.Monoid
+import Numeric.Natural
+
+import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Foldable, Traversable (..))
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -65,3 +71,22 @@ snd3 (_,y,_) = y
 
 þrd3 :: (a, b, c) -> c
 þrd3 (_,_,z) = z
+
+replicate :: Alternative f => Natural -> a -> f a
+replicate 0 _ = empty
+replicate n a = pure a <|> replicate (pred n) a
+
+replicateA :: (Applicative p, Alternative f) => Natural -> p a -> p (f a)
+replicateA 0 _ = pure empty
+replicateA n a = (<|>) . pure <$> a <*> replicateA (pred n) a
+
+mtimesA :: (Applicative p, Semigroup a, Monoid a) => Natural -> p a -> p a
+mtimesA n = unAp . stimes n . Ap
+
+newtype Ap p a = Ap { unAp :: p a }
+  deriving (Functor, Applicative, Monad, Alternative, MonadPlus, Foldable, Traversable,
+            Eq1, Ord1, Read1, Show1, Eq, Ord, Read, Show, Bounded, Enum)
+instance (Applicative p, Semigroup a) => Semigroup (Ap p a) where (<>) = liftA2 (<>)
+instance (Applicative p, Semigroup a, Monoid a) => Monoid (Ap p a) where
+    mempty = pure mempty
+    mappend = (<>)
