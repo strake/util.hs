@@ -35,6 +35,9 @@ apMA f = join ∘ ap f ∘ pure
 whileJust :: (Alternative f, Monad m) => m (Maybe a) -> (a -> m b) -> m (f b)
 whileJust mmx f = mmx >>= maybe (pure empty) (f >=> (<$> whileJust mmx f) ∘ (<|>) ∘ pure)
 
+untilJust :: Monad m => m (Maybe a) -> m a
+untilJust mmx = mmx >>= maybe (untilJust mmx) pure
+
 list :: b -> (a -> [a] -> b) -> [a] -> b
 list y _ []     = y
 list _ f (x:xs) = f x xs
