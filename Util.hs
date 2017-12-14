@@ -7,6 +7,8 @@ import Data.Bool
 import Data.Foldable
 import Data.Function (flip)
 import Data.Functor.Classes
+import Data.List.NonEmpty (NonEmpty (..))
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Semigroup
 import Data.Monoid (Monoid (..))
@@ -96,3 +98,6 @@ instance (Applicative p, Semigroup a, Monoid a) => Monoid (Ap p a) where
 (!!?) = go . toList where go [] _ = Nothing
                           go (x:_) 0 = Just x
                           go (_:xs) n = go xs (pred n)
+
+intercalate :: Semigroup a => a -> NonEmpty a -> a
+intercalate a = sconcat . NE.intersperse a
