@@ -18,7 +18,7 @@ import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..))
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
-f &=& g = (liftA2 ∘ liftA2) (,) f g
+(&=&) = (liftA2 ∘ liftA2) (,)
 
 infixr 3 *=*
 (*=*) :: Applicative p => (a1 -> p b1) -> (a2 -> p b2) -> (a1, a2) -> p (b1, b2)
