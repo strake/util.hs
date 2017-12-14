@@ -48,8 +48,11 @@ untilJust :: Monad m => m (Maybe a) -> m a
 untilJust mmx = mmx >>= maybe (untilJust mmx) pure
 
 list :: b -> (a -> [a] -> b) -> [a] -> b
-list y _ []     = y
-list _ f (x:xs) = f x xs
+list y f = list' y (liftA2 f NE.head NE.tail)
+
+list' :: b -> (NonEmpty a -> b) -> [a] -> b
+list' y _ []     = y
+list' _ f (x:xs) = f (x:|xs)
 
 infixr 9 &, ∘, ∘∘
 
