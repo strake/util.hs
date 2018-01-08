@@ -14,7 +14,7 @@ import Data.Semigroup
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
-import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..))
+import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..), uncurry)
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -104,3 +104,15 @@ instance (Applicative p, Semigroup a, Monoid a) => Monoid (Ap p a) where
 
 intercalate :: Semigroup a => a -> NonEmpty a -> a
 intercalate a = sconcat . NE.intersperse a
+
+bind2 :: Monad m => (a -> b -> m c) -> m a -> m b -> m c
+bind2 f x y = liftA2 (,) x y >>= uncurry f
+
+bind3 :: Monad m => (a -> b -> c -> m d) -> m a -> m b -> m c -> m d
+bind3 f x y z = liftA3 (,,) x y z >>= uncurry3 f
+
+uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
+uncurry3 f (x, y, z) = f x y z
+
+curry3 :: ((a, b, c) -> d) -> a -> b -> c -> d
+curry3 f x y z = f (x, y, z)
