@@ -4,7 +4,7 @@ import Control.Applicative
 import Control.Category
 import Control.Monad
 import Data.Bool
-import Data.Foldable
+import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (flip)
 import Data.Functor.Classes
 import Data.List.NonEmpty (NonEmpty (..))
@@ -14,7 +14,7 @@ import Data.Semigroup
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
-import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..), uncurry)
+import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..), Ordering (..), uncurry)
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -46,6 +46,12 @@ whileJust mmx f = mmx >>= maybe (pure empty) (f >=> (<$> whileJust mmx f) ∘ (<
 
 untilJust :: Monad m => m (Maybe a) -> m a
 untilJust mmx = mmx >>= maybe (untilJust mmx) pure
+
+whenM :: Monad m => m Bool -> m () -> m ()
+whenM p x = p >>= flip when x
+
+unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM p x = p >>= flip unless x
 
 list :: b -> (a -> [a] -> b) -> [a] -> b
 list y f = list' y (liftA2 f NE.head NE.tail)
@@ -116,3 +122,12 @@ uncurry3 f (x, y, z) = f x y z
 
 curry3 :: ((a, b, c) -> d) -> a -> b -> c -> d
 curry3 f x y z = f (x, y, z)
+
+infix 4 ∈, ∉
+(∈), (∉) :: (Eq a, Foldable f) => a -> f a -> Bool
+(∈) = elem
+(∉) = not ∘∘ elem
+
+maximumBy, minimumBy :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
+maximumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of GT -> a; _ -> b) Nothing
+minimumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of LT -> a; _ -> b) Nothing
