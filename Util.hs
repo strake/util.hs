@@ -131,3 +131,6 @@ infix 4 ∈, ∉
 maximumBy, minimumBy :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
 maximumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of GT -> a; _ -> b) Nothing
 minimumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of LT -> a; _ -> b) Nothing
+
+foldMapA :: (Applicative p, Monoid b, Foldable f) => (a -> p b) -> f a -> p b
+foldMapA f = foldr (liftA2 (<>) . f) (pure mempty)
