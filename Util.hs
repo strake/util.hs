@@ -7,7 +7,7 @@ import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (flip)
 import Data.Functor.Classes
-import Data.List.NonEmpty (NonEmpty (..))
+import Data.List.NonEmpty (NonEmpty (..), (<|))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Semigroup
@@ -134,3 +134,7 @@ minimumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of LT -> a; _
 
 foldMapA :: (Applicative p, Monoid b, Foldable f) => (a -> p b) -> f a -> p b
 foldMapA f = foldr (liftA2 (<>) . f) (pure mempty)
+
+iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
+iterateM 0 _ x = pure (x:|[])
+iterateM k f x = (x <|) <$> (f x >>= iterateM (pred k) f)
