@@ -135,6 +135,9 @@ minimumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of LT -> a; _
 foldMapA :: (Applicative p, Monoid b, Foldable f) => (a -> p b) -> f a -> p b
 foldMapA f = foldr (liftA2 (<>) . f) (pure mempty)
 
+altMap :: (Alternative p, Foldable f) => (a -> p b) -> f a -> p b
+altMap f = foldr ((<|>) . f) empty
+
 iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
 iterateM 0 _ x = pure (x:|[])
 iterateM k f x = (x <|) <$> (f x >>= iterateM (pred k) f)
