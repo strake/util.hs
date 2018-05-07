@@ -7,7 +7,7 @@ import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (flip)
 import Data.Functor.Classes
-import Data.List.NonEmpty (NonEmpty (..), (<|))
+import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Semigroup
@@ -42,7 +42,7 @@ apMA :: Monad m => m (a -> m b) -> a -> m b
 apMA f = join ∘ ap f ∘ pure
 
 whileJust :: (Alternative f, Monad m) => m (Maybe a) -> (a -> m b) -> m (f b)
-whileJust mmx f = mmx >>= maybe (pure empty) (f >=> (<$> whileJust mmx f) ∘ (<|>) ∘ pure)
+whileJust mmx f = mmx >>= maybe (pure empty) (\ x -> (<|) <$> f x <*> whileJust mmx f)
 
 untilJust :: Monad m => m (Maybe a) -> m a
 untilJust mmx = mmx >>= maybe (untilJust mmx) pure
@@ -86,11 +86,11 @@ snd3 (_,y,_) = y
 
 replicate :: Alternative f => Natural -> a -> f a
 replicate 0 _ = empty
-replicate n a = pure a <|> replicate (pred n) a
+replicate n a = a <| replicate (pred n) a
 
 replicateA :: (Applicative p, Alternative f) => Natural -> p a -> p (f a)
 replicateA 0 _ = pure empty
-replicateA n a = (<|>) . pure <$> a <*> replicateA (pred n) a
+replicateA n a = (<|) <$> a <*> replicateA (pred n) a
 
 mtimesA :: (Applicative p, Semigroup a, Monoid a) => Natural -> p a -> p a
 mtimesA n = unAp . stimes n . Ap
@@ -140,4 +140,12 @@ altMap f = foldr ((<|>) . f) empty
 
 iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
 iterateM 0 _ x = pure (x:|[])
-iterateM k f x = (x <|) <$> (f x >>= iterateM (pred k) f)
+iterateM k f x = (x NE.<|) <$> (f x >>= iterateM (pred k) f)
+
+infixl 3 <|, |>
+
+(<|) :: Alternative f => a -> f a -> f a
+x <| xs = pure x <|> xs
+
+(|>) :: Alternative f => f a -> a -> f a
+xs |> x = xs <|> pure x
