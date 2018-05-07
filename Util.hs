@@ -117,6 +117,22 @@ bind2 f x y = liftA2 (,) x y >>= uncurry f
 bind3 :: Monad m => (a -> b -> c -> m d) -> m a -> m b -> m c -> m d
 bind3 f x y z = liftA3 (,,) x y z >>= uncurry3 f
 
+traverse2 :: (Traversable t, Applicative t, Applicative p)
+          => (a -> b -> p c) -> t a -> t b -> p (t c)
+traverse2 f xs ys = sequenceA (f <$> xs <*> ys)
+
+traverse3 :: (Traversable t, Applicative t, Applicative p)
+          => (a -> b -> c -> p d) -> t a -> t b -> t c -> p (t d)
+traverse3 f xs ys zs = sequenceA (f <$> xs <*> ys <*> zs)
+
+foldMap2 :: (Foldable t, Applicative t, Monoid z)
+         => (a -> b -> z) -> t a -> t b -> z
+foldMap2 f xs ys = fold (f <$> xs <*> ys)
+
+foldMap3 :: (Foldable t, Applicative t, Monoid z)
+         => (a -> b -> c -> z) -> t a -> t b -> t c -> z
+foldMap3 f xs ys zs = fold (f <$> xs <*> ys <*> zs)
+
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (x, y, z) = f x y z
 
