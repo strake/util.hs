@@ -149,7 +149,7 @@ maximumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of GT -> a; _
 minimumBy f = foldr (\ a -> Just . fromMaybe a & \ b -> case f a b of LT -> a; _ -> b) Nothing
 
 foldMapA :: (Applicative p, Monoid b, Foldable f) => (a -> p b) -> f a -> p b
-foldMapA f = foldr (liftA2 (<>) . f) (pure mempty)
+foldMapA f = foldr (liftA2 mappend . f) (pure mempty)
 
 altMap :: (Alternative p, Foldable f) => (a -> p b) -> f a -> p b
 altMap f = foldr ((<|>) . f) empty
