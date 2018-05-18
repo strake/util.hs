@@ -71,9 +71,12 @@ infixr 9 &, ∘, ∘∘
 (∘∘) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
 (f ∘∘ g) x y = f (g x y)
 
-infixl 0 `onn`
+infixl 0 `onn`, `onnn`
 onn :: (a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> b
 onn f g x y z = f (g x) (g y) (g z)
+
+onnn :: (a -> a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> c -> b
+onnn f g w x y z = f (g w) (g x) (g y) (g z)
 
 fst3 :: (a, b, c) -> a
 fst3 (x,_,_) = x
@@ -136,8 +139,14 @@ foldMap3 f xs ys zs = fold (f <$> xs <*> ys <*> zs)
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (x, y, z) = f x y z
 
+uncurry4 :: (a -> b -> c -> d -> e) -> (a, b, c, d) -> e
+uncurry4 f (w, x, y, z) = f w x y z
+
 curry3 :: ((a, b, c) -> d) -> a -> b -> c -> d
 curry3 f x y z = f (x, y, z)
+
+curry4 :: ((a, b, c, d) -> e) -> a -> b -> c -> d -> e
+curry4 f w x y z = f (w, x, y, z)
 
 infix 4 ∈, ∉
 (∈), (∉) :: (Eq a, Foldable f) => a -> f a -> Bool
