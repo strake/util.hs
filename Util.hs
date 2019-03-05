@@ -71,6 +71,12 @@ infixr 9 &, ∘, ∘∘
 (∘∘) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
 (f ∘∘ g) x y = f (g x y)
 
+compose2 :: (a' -> b' -> c) -> (a -> a') -> (b -> b') -> a -> b -> c
+compose2 φ f g x y = φ (f x) (g y)
+
+compose3 :: (a' -> b' -> c' -> d) -> (a -> a') -> (b -> b') -> (c -> c') -> a -> b -> c -> d
+compose3 φ f g h x y z = φ (f x) (g y) (h z)
+
 infixl 0 `onn`, `onnn`
 onn :: (a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> b
 onn f g x y z = f (g x) (g y) (g z)
