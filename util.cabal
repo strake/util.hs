@@ -27,4 +27,4 @@ library
                      , DeriveFunctor
                      , DeriveFoldable
                      , DeriveTraversable
-  ghc-options:         -Wall
+  ghc-options:         -Wall -Wno-name-shadowing
