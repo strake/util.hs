@@ -3,14 +3,16 @@ module Util where
 import Control.Applicative
 import Control.Category
 import Control.Monad
+import Control.Monad.Fix
 import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
-import Data.Function (flip)
+import Data.Function (($), flip)
 import Data.Functor.Classes
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Semigroup
+import Data.Tuple (snd)
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
@@ -172,6 +174,9 @@ altMap f = foldr ((<|>) . f) empty
 iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
 iterateM 0 _ x = pure (x:|[])
 iterateM k f x = (x NE.<|) <$> (f x >>= iterateM (pred k) f)
+
+loopM :: MonadFix m => (a -> m (a, b)) -> m b
+loopM f = fmap snd . mfix $ \ (a, _) -> f a
 
 infixl 3 <|, |>
 
