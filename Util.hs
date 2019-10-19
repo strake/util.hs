@@ -4,6 +4,7 @@ import Control.Applicative
 import Control.Category
 import Control.Monad
 import Control.Monad.Fix
+import Control.Monad.Trans.State (state, evalState)
 import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (($), flip)
@@ -185,3 +186,9 @@ x <| xs = pure x <|> xs
 
 (|>) :: Alternative f => f a -> a -> f a
 xs |> x = xs <|> pure x
+
+count :: (Traversable f, Enum n) => f a -> f (n, a)
+count = countFrom (toEnum 0)
+
+countFrom :: (Traversable f, Enum n) => n -> f a -> f (n, a)
+countFrom n = flip evalState n . traverse (\ a -> state $ \ k -> ((k, a), succ k))
