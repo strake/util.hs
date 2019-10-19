@@ -24,6 +24,7 @@ library
   default-language:    Haskell2010
   default-extensions:  NoImplicitPrelude
                      , LambdaCase
+                     , MonadComprehensions
                      , GeneralizedNewtypeDeriving
                      , DeriveFunctor
                      , DeriveFoldable
