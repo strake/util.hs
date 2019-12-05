@@ -1,3 +1,4 @@
+{-# LANGUAGE Safe #-}
 module Util where
 
 import Control.Applicative
@@ -108,8 +109,9 @@ mtimesA :: (Applicative p, Semigroup a, Monoid a) => Natural -> p a -> p a
 mtimesA n = unAp . stimes n . Ap
 
 newtype Ap p a = Ap { unAp :: p a }
-  deriving (Functor, Applicative, Monad, Alternative, MonadPlus, Foldable, Traversable,
-            Eq1, Ord1, Read1, Show1, Eq, Ord, Read, Show, Bounded, Enum)
+  deriving (Foldable, Functor, Traversable)
+  deriving (Eq, Ord, Read, Show, Bounded, Enum) via p a
+  deriving (Applicative, Monad, Alternative, MonadPlus, Eq1, Ord1, Read1, Show1) via p
 instance (Applicative p, Semigroup a) => Semigroup (Ap p a) where (<>) = liftA2 (<>)
 instance (Applicative p, Semigroup a, Monoid a) => Monoid (Ap p a) where
     mempty = pure mempty

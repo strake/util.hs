@@ -25,8 +25,6 @@ library
   default-extensions:  NoImplicitPrelude
                      , LambdaCase
                      , MonadComprehensions
-                     , GeneralizedNewtypeDeriving
-                     , DeriveFunctor
-                     , DeriveFoldable
-                     , DeriveTraversable
+                     , DerivingVia
+                     , DeriveFoldable, DeriveFunctor, DeriveTraversable
   ghc-options:         -Wall -Wno-name-shadowing

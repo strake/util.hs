@@ -1,5 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
-
+{-# LANGUAGE Safe #-}
 module Util.List where
 
 import Control.Applicative
