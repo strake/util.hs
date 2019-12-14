@@ -6,6 +6,7 @@ import Control.Category
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans.State (state, evalState)
+import Data.Bits
 import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (($), flip)
@@ -18,7 +19,7 @@ import Data.Tuple (snd)
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
-import Prelude (Enum (..), Bounded, Eq, Ord, Read, Show, Traversable (..), Ordering (..), uncurry)
+import Prelude (Enum (..), Bounded, Eq (..), Ord (..), Read, Show, Traversable (..), Ordering (..), Char, Int, Word, (+), (-), fromIntegral, uncurry)
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -194,3 +195,20 @@ count = countFrom (toEnum 0)
 
 countFrom :: (Traversable f, Enum n) => n -> f a -> f (n, a)
 countFrom n = flip evalState n . traverse (\ a -> state $ \ k -> ((k, a), succ k))
+
+some :: Alternative p => p a -> p (NonEmpty a)
+some = liftA2 (:|) <*> many
+
+digit :: Char -> Maybe Word
+digit = go & \ n -> n <$ guard (fromIntegral n >= (0 :: Int))
+  where
+    go x
+      | dec < 10 = dec
+      | abcl < 26 = abcl + 10
+      | abcu < 26 = abcu + 10
+      | otherwise = complement 0
+      where
+        dec = fromIntegral $ fromEnum x - fromEnum '0'
+        abcl = fromIntegral $ fromEnum x - fromEnum 'a'
+        abcu = fromIntegral $ fromEnum x - fromEnum 'A'
+{-# INLINE digit #-}
