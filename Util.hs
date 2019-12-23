@@ -98,6 +98,14 @@ snd3 (_,y,_) = y
 þrd3 :: (a, b, c) -> c
 þrd3 (_,_,z) = z
 
+infixr 0 ₪
+(₪) :: a -> (a -> b) -> b
+(₪) = flip id
+
+infixl 4 <₪>
+(<₪>) :: Functor f => f a -> (a -> b) -> f b
+(<₪>) = flip fmap
+
 replicate :: Alternative f => Natural -> a -> f a
 replicate 0 _ = empty
 replicate n a = a <| replicate (pred n) a
