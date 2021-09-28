@@ -223,6 +223,13 @@ traverseWithIx f = traverse (uncurry f) ∘ count
 some :: Alternative p => p a -> p (NonEmpty a)
 some = liftA2 (:|) <*> many
 
+unfoldrM :: (Monad m, Alternative f) => (a -> m (Maybe (b, a))) -> a -> m (f b)
+unfoldrM f = go
+  where
+    go = f >=> \ case
+        Nothing -> pure empty
+        Just (x, z) -> (x <|) <$> go z
+
 digit :: Char -> Maybe Word
 digit = go & \ n -> n <$ guard (fromIntegral n >= (0 :: Int))
   where
