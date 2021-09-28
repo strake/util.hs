@@ -11,6 +11,7 @@ import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
 import Data.Function (($), flip)
 import Data.Functor.Classes
+import Data.Functor.Identity (Identity (..))
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
@@ -19,7 +20,7 @@ import Data.Tuple (snd)
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
-import Prelude (Enum (..), Bounded, Eq (..), Ord (..), Read, Show, Traversable (..), Ordering (..), Char, Int, Word, (+), (-), fromIntegral, uncurry)
+import Prelude (Enum (..), Bounded, Eq (..), Ord (..), Read, Show, Traversable (..), Ordering (..), Char, Int, Word, (+), (-), fromIntegral, uncurry, zipWith)
 
 infixr 3 &=&
 (&=&) :: Applicative p => (a -> p b) -> (a -> p c) -> a -> p (b, c)
@@ -203,6 +204,15 @@ count = countFrom (toEnum 0)
 
 countFrom :: (Traversable f, Enum n) => n -> f a -> f (n, a)
 countFrom n = flip evalState n . traverse (\ a -> state $ \ k -> ((k, a), succ k))
+
+foldMapWithIx :: (Foldable f, Enum k, Monoid b) => (k -> a -> b) -> f a -> b
+foldMapWithIx f = fold . zipWith f [toEnum 0..] . toList
+
+mapWithIx :: (Traversable f, Enum k) => (k -> a -> b) -> f a -> f b
+mapWithIx f = runIdentity ∘ traverseWithIx (Identity ∘∘ f)
+
+traverseWithIx :: (Applicative p, Traversable f, Enum k) => (k -> a -> p b) -> f a -> p (f b)
+traverseWithIx f = traverse (uncurry f) ∘ count
 
 some :: Alternative p => p a -> p (NonEmpty a)
 some = liftA2 (:|) <*> many
