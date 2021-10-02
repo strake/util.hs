@@ -243,3 +243,33 @@ digit = go & \ n -> n <$ guard (fromIntegral n >= (0 :: Int))
         abcl = fromIntegral $ fromEnum x - fromEnum 'a'
         abcu = fromIntegral $ fromEnum x - fromEnum 'A'
 {-# INLINE digit #-}
+
+slipr :: (a -> b -> c -> d) -> b -> c -> a -> d
+slipr φ b c a = φ a b c
+
+slipl :: (a -> b -> c -> d) -> c -> a -> b -> d
+slipl φ c a b = φ a b c
+
+slipr4 :: (a -> b -> c -> d -> e) -> b -> c -> d -> a -> e
+slipr4 φ b c d a = φ a b c d
+
+slipl4 :: (a -> b -> c -> d -> e) -> d -> a -> b -> c -> e
+slipl4 φ d a b c = φ a b c d
+
+flip3 :: (a -> b -> c -> d) -> c -> b -> a -> d
+flip3 φ c b a = φ a b c
+
+flip4 :: (a -> b -> c -> d -> e) -> d -> b -> c -> a -> e
+flip4 φ d b c a = φ a b c d
+
+flip5 :: (a -> b -> c -> d -> e -> f) -> e -> b -> c -> d -> a -> f
+flip5 φ e b c d a = φ a b c d e
+
+mwhen, munless :: Monoid a => Bool -> a -> a
+mwhen False = mempty
+mwhen True = id
+munless = mwhen . not
+
+applyWhen, applyUnless :: Bool -> (a -> a) -> a -> a
+applyWhen = flip $ bool id
+applyUnless = applyWhen . not
