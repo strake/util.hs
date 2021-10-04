@@ -15,6 +15,7 @@ library
   exposed-modules:     Util
                      , Util.Bits
                      , Util.List
+                     , Util.List.NonEmpty
                      , Util.Monad.ST.Unsafe
   -- other-modules:       
   -- other-extensions:    
