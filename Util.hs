@@ -273,3 +273,15 @@ munless = mwhen . not
 applyWhen, applyUnless :: Bool -> (a -> a) -> a -> a
 applyWhen = flip $ bool id
 applyUnless = applyWhen . not
+
+allM, anyM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
+
+allM f = go . toList
+  where
+    go []     = pure True
+    go (a:as) = f a >>= bool (pure False) (go as)
+
+anyM f = go . toList
+  where
+    go [] = pure False
+    go (a:as) = f a >>= bool (go as) (pure True)
