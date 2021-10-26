@@ -191,10 +191,10 @@ iterateM k f x = (x NE.<|) <$> (f x >>= iterateM (pred k) f)
 loopM :: MonadFix m => (a -> m (a, b)) -> m b
 loopM f = fmap snd . mfix $ \ (a, _) -> f a
 
-unlessMaybe, whenMaybe :: Monad m => Bool -> m a -> m (Maybe a)
+unlessMaybe, whenMaybe :: (Monad m, Alternative f) => Bool -> m a -> m (f a)
 whenMaybe = \ case
-    False -> \ _ -> pure Nothing
-    True -> fmap Just
+    False -> \ _ -> pure empty
+    True -> fmap pure
 unlessMaybe = whenMaybe . not
 
 infixl 3 <|, |>
