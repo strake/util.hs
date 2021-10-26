@@ -285,3 +285,9 @@ anyM f = go . toList
   where
     go [] = pure False
     go (a:as) = f a >>= bool (go as) (pure True)
+
+andM :: Monad m => m Bool -> m Bool -> m Bool
+andM m1 m2 = m1 >>= bool (pure False) m2
+
+orM :: Monad m => m Bool -> m Bool -> m Bool
+orM m1 m2 = m1 >>= bool m2 (pure True)
