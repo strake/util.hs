@@ -185,6 +185,12 @@ foldMapA f = unAp . foldMap (Ap . f)
 altMap :: (Alternative p, Foldable f) => (a -> p b) -> f a -> p b
 altMap f = foldr ((<|>) . f) empty
 
+altMapA :: (Applicative p, Alternative q, Foldable f) => (a -> p (q b)) -> f a -> p (q b)
+altMapA f = fmap asum . traverse f . toList
+
+asumA :: (Applicative p, Alternative q, Foldable f) => f (p (q a)) -> p (q a)
+asumA = altMapA id
+
 iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
 iterateM 0 _ x = pure (x:|[])
 iterateM k f x = (x NE.<|) <$> (f x >>= iterateM (pred k) f)
