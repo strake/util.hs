@@ -2,10 +2,11 @@
 module Util where
 
 import Control.Applicative
+import Control.Applicative.Backwards
 import Control.Category
 import Control.Monad
 import Control.Monad.Fix
-import Control.Monad.Trans.State (state, evalState)
+import Control.Monad.Trans.State (StateT (..), state, evalState)
 import Data.Bits
 import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
@@ -16,7 +17,7 @@ import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Semigroup
-import Data.Tuple (snd)
+import Data.Tuple (snd, swap)
 import Data.Monoid (Monoid (..))
 import Numeric.Natural
 
@@ -291,3 +292,25 @@ andM m1 m2 = m1 >>= bool (pure False) m2
 
 orM :: Monad m => m Bool -> m Bool -> m Bool
 orM m1 m2 = m1 >>= bool m2 (pure True)
+
+mapAccumL :: Traversable t => (b -> a -> (b, c)) -> b -> t a -> (b, t c)
+mapAccumL f = runIdentity ∘∘ mapAccumLM (Identity ∘∘ f)
+
+mapAccumR :: Traversable t => (a -> b -> (b, c)) -> b -> t a -> (b, t c)
+mapAccumR f = runIdentity ∘∘ mapAccumRM (Identity ∘∘ f)
+
+mapAccumLM
+ :: (Monad m, Traversable t)
+ => (b -> a -> m (b, c))
+ -> b -> t a -> m (b, t c)
+mapAccumLM f s = fmap swap . flip runStateT s . traverse f'
+  where
+    f' = StateT ∘ fmap swap ∘∘ flip f
+
+mapAccumRM
+ :: (Monad m, Traversable t)
+ => (a -> b -> m (b, c))
+ -> b -> t a -> m (b, t c)
+mapAccumRM f s = fmap swap . flip runStateT s . forwards . traverse f'
+  where
+    f' = Backwards ∘ StateT ∘ fmap swap ∘∘ f
