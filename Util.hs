@@ -320,3 +320,10 @@ mapAccumRM
 mapAccumRM f s = fmap swap . flip runStateT s . forwards . traverse f'
   where
     f' = Backwards ∘ StateT ∘ fmap swap ∘∘ f
+
+whenNothing :: Applicative p => Maybe a -> p a -> p a
+whenNothing = maybe id (pure . pure)
+
+infixr `orElseM`
+orElseM :: Monad m => m (Maybe b) -> m b -> m b
+orElseM f g = f >>= maybe g pure
