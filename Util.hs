@@ -7,6 +7,7 @@ import Control.Category
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans.State (StateT (..), state, evalState)
+import Data.Bitraversable (Bitraversable (bitraverse))
 import Data.Bits
 import Data.Bool
 import Data.Foldable hiding (maximumBy, minimumBy)
@@ -28,8 +29,8 @@ infixr 3 &=&
 (&=&) = (liftA2 ∘ liftA2) (,)
 
 infixr 3 *=*
-(*=*) :: Applicative p => (a1 -> p b1) -> (a2 -> p b2) -> (a1, a2) -> p (b1, b2)
-(f *=* g) (x, y) = liftA2 (,) (f x) (g y)
+(*=*) :: (Bitraversable f, Applicative p) => (a1 -> p b1) -> (a2 -> p b2) -> f a1 a2 -> p (f b1 b2)
+(*=*) = bitraverse
 
 tripleK :: Applicative p => (a1 -> p b1) -> (a2 -> p b2) -> (a3 -> p b3) -> (a1, a2, a3) -> p (b1, b2, b3)
 tripleK f g h (x, y, z) = liftA3 (,,) (f x) (g y) (h z)
