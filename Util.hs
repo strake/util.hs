@@ -273,6 +273,9 @@ flip4 φ d b c a = φ a b c d
 flip5 :: (a -> b -> c -> d -> e -> f) -> e -> b -> c -> d -> a -> f
 flip5 φ e b c d a = φ a b c d e
 
+flap :: Functor f => f (a -> b) -> a -> f b
+flap fs a = ($ a) <$> fs
+
 mwhen, munless :: Monoid a => Bool -> a -> a
 mwhen False = mempty
 mwhen True = id
