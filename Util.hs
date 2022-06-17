@@ -35,6 +35,9 @@ infixr 3 *=*
 tripleK :: Applicative p => (a1 -> p b1) -> (a2 -> p b2) -> (a3 -> p b3) -> (a1, a2, a3) -> p (b1, b2, b3)
 tripleK f g h (x, y, z) = liftA3 (,,) (f x) (g y) (h z)
 
+quadrupleK :: Applicative p => (a1 -> p b1) -> (a2 -> p b2) -> (a3 -> p b3) -> (a4 -> p b4) -> (a1, a2, a3, a4) -> p (b1, b2, b3, b4)
+quadrupleK f₁ f₂ f₃ f₄ (x₁, x₂, x₃, x₄) = liftA4 (,,,) (f₁ x₁) (f₂ x₂) (f₃ x₃) (f₄ x₄)
+
 infixr 2 <||>
 (<||>) :: Applicative p => p Bool -> p Bool -> p Bool
 (<||>) = liftA2 (||)
@@ -79,11 +82,20 @@ infixr 9 &, ∘, ∘∘
 (∘∘) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
 (f ∘∘ g) x y = f (g x y)
 
+(∘∘∘) :: (d -> e) -> (a -> b -> c -> d) -> (a -> b -> c -> e)
+(f ∘∘∘ g) x y z = f (g x y z)
+
+(∘∘∘∘) :: (e -> f) -> (a -> b -> c -> d -> e) -> (a -> b -> c -> d -> f)
+(f ∘∘∘∘ g) w x y z = f (g w x y z)
+
 compose2 :: (a' -> b' -> c) -> (a -> a') -> (b -> b') -> a -> b -> c
 compose2 φ f g x y = φ (f x) (g y)
 
 compose3 :: (a' -> b' -> c' -> d) -> (a -> a') -> (b -> b') -> (c -> c') -> a -> b -> c -> d
 compose3 φ f g h x y z = φ (f x) (g y) (h z)
+
+compose4 :: (a' -> b' -> c' -> d' -> e) -> (a -> a') -> (b -> b') -> (c -> c') -> (d -> d') -> a -> b -> c -> d -> e
+compose4 φ e f g h w x y z = φ (e w) (f x) (g y) (h z)
 
 infixl 0 `onn`, `onnn`
 onn :: (a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> b
@@ -91,6 +103,9 @@ onn f g x y z = f (g x) (g y) (g z)
 
 onnn :: (a -> a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> c -> b
 onnn f g w x y z = f (g w) (g x) (g y) (g z)
+
+onnnn :: (a -> a -> a -> a -> a -> b) -> (c -> a) -> c -> c -> c -> c -> c -> b
+onnnn f g x₁ x₂ x₃ x₄ x₅ = f (g x₁) (g x₂) (g x₃) (g x₄) (g x₅)
 
 fst3 :: (a, b, c) -> a
 fst3 (x,_,_) = x
@@ -100,6 +115,18 @@ snd3 (_,y,_) = y
 
 þrd3 :: (a, b, c) -> c
 þrd3 (_,_,z) = z
+
+fst4 :: (a, b, c, d) -> a
+fst4 (w,_,_,_) = w
+
+snd4 :: (a, b, c, d) -> b
+snd4 (_,x,_,_) = x
+
+þrd4 :: (a, b, c, d) -> c
+þrd4 (_,_,y,_) = y
+
+fth4 :: (a, b, c, d) -> d
+fth4 (_,_,_,z) = z
 
 infixr 0 ₪
 (₪) :: a -> (a -> b) -> b
@@ -143,6 +170,9 @@ bind2 f x y = liftA2 (,) x y >>= uncurry f
 bind3 :: Monad m => (a -> b -> c -> m d) -> m a -> m b -> m c -> m d
 bind3 f x y z = liftA3 (,,) x y z >>= uncurry3 f
 
+bind4 :: Monad m => (a -> b -> c -> d -> m e) -> m a -> m b -> m c -> m d -> m e
+bind4 f w x y z = liftA4 (,,,) w x y z >>= uncurry4 f
+
 traverse2 :: (Traversable t, Applicative t, Applicative p)
           => (a -> b -> p c) -> t a -> t b -> p (t c)
 traverse2 f xs ys = sequenceA (f <$> xs <*> ys)
@@ -158,6 +188,10 @@ foldMap2 f xs ys = fold (f <$> xs <*> ys)
 foldMap3 :: (Foldable t, Applicative t, Monoid z)
          => (a -> b -> c -> z) -> t a -> t b -> t c -> z
 foldMap3 f xs ys zs = fold (f <$> xs <*> ys <*> zs)
+
+foldMap4 :: (Foldable t, Applicative t, Monoid z)
+         => (a -> b -> c -> d -> z) -> t a -> t b -> t c -> t d -> z
+foldMap4 f ws xs ys zs = fold (f <$> ws <*> xs <*> ys <*> zs)
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (x, y, z) = f x y z
