@@ -330,4 +330,7 @@ whenNothing = maybe id (pure . pure)
 
 infixr `orElseM`
 orElseM :: Monad m => m (Maybe b) -> m b -> m b
-orElseM f g = f >>= maybe g pure
+orElseM = flip fromMaybeM
+
+fromMaybeM :: Monad m => m b -> m (Maybe b) -> m b
+fromMaybeM g = (>>= maybe g pure)
