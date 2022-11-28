@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# OPTIONS_GHC -fstatic-argument-transformation -fexpose-all-unfoldings #-}
 module Util where
 
 import Control.Applicative
@@ -75,9 +76,11 @@ infixr 9 &, ∘, ∘∘
 
 (∘) :: (Category p) => p b c -> p a b -> p a c
 (∘) = (.)
+{-# INLINE (∘) #-}
 
 (&) :: (Category p) => p a b -> p b c -> p a c
 (&) = flip (∘)
+{-# INLINE (&) #-}
 
 (∘∘) :: (c -> d) -> (a -> b -> c) -> (a -> b -> d)
 (f ∘∘ g) x y = f (g x y)
@@ -165,13 +168,16 @@ intercalate :: Semigroup a => a -> NonEmpty a -> a
 intercalate a = sconcat . NE.intersperse a
 
 bind2 :: Monad m => (a -> b -> m c) -> m a -> m b -> m c
-bind2 f x y = liftA2 (,) x y >>= uncurry f
+bind2 f = \ x y -> join (liftA2 f x y)
+{-# INLINE bind2 #-}
 
 bind3 :: Monad m => (a -> b -> c -> m d) -> m a -> m b -> m c -> m d
-bind3 f x y z = liftA3 (,,) x y z >>= uncurry3 f
+bind3 f = \ x y z -> join (liftA3 f x y z)
+{-# INLINE bind3 #-}
 
 bind4 :: Monad m => (a -> b -> c -> d -> m e) -> m a -> m b -> m c -> m d -> m e
-bind4 f w x y z = liftA4 (,,,) w x y z >>= uncurry4 f
+bind4 f = \ w x y z -> join (liftA4 f w x y z)
+{-# INLINE bind4 #-}
 
 traverse2 :: (Traversable t, Applicative t, Applicative p)
           => (a -> b -> p c) -> t a -> t b -> p (t c)
@@ -219,12 +225,15 @@ foldMapA f = unAp . foldMap (Ap . f)
 
 altMap :: (Alternative p, Foldable f) => (a -> p b) -> f a -> p b
 altMap f = foldr ((<|>) . f) empty
+{-# INLINE altMap #-}
 
 altMapA :: (Applicative p, Alternative q, Foldable f) => (a -> p (q b)) -> f a -> p (q b)
 altMapA f = fmap asum . traverse f . toList
+{-# INLINE altMapA #-}
 
 asumA :: (Applicative p, Alternative q, Foldable f) => f (p (q a)) -> p (q a)
 asumA = altMapA id
+{-# INLINE asumA #-}
 
 iterateM :: Monad m => Natural -> (a -> m a) -> a -> m (NonEmpty a)
 iterateM 0 _ x = pure (x:|[])
