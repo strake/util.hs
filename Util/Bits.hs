@@ -16,9 +16,9 @@ import Util
 a .&¬ b = a .&. complement b
 
 setBits :: (Bits a, Prelude.Integral n, Alternative f) => a -> f n
-setBits = altMap pure ∘ go 0
-  where go n a | zeroBits == a `shiftR` fromIntegral n = []
-               | True = bool id (n:) (testBit a (fromIntegral n)) (go (n+1) a)
+setBits = go 0
+  where go n a | zeroBits == a `shiftR` fromIntegral n = empty
+               | True = bool id (pure n <|>) (testBit a (fromIntegral n)) (go (n+1) a)
 
 interleaveBits :: (Bits a, Bits b) => [a] -> b
 interleaveBits = fromListLE . concat . transpose . pad False . fmap toListLE
